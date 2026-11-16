@@ -1,7 +1,12 @@
 export type Lang = "pt" | "en";
 export type L = { pt: string; en: string };
 
-export type Img = { label: L; src?: string };
+export type Img = {
+  label: L;
+  src?: string;
+  /** "contain" mostra a imagem inteira (ex.: print vertical de celular) */
+  fit?: "cover" | "contain";
+};
 
 /* ───────────────────────── Dados pessoais ───────────────────────── */
 
@@ -13,7 +18,8 @@ export const site = {
   lattes: "http://lattes.cnpq.br/1656015756108559",
   photo: "/images/joao.webp" as string | undefined,
   cv: {
-    dev: "/cv/joao-borges-cv-desenvolvedor.pdf",
+    /** CV em cada idioma; o site mostra o do idioma da página */
+    dev: { pt: "/cv/joao-borges-cv-desenvolvedor.pdf", en: "/cv/joao-borges-cv-developer.pdf" },
     design: "/cv/joao-borges-portfolio-design.pdf",
   },
 };
@@ -77,6 +83,7 @@ const uiPt = {
   fEns: "Ensino",
   fLead: "Liderança",
   tools: "Ferramentas",
+  process: "Processo",
   close: "Fechar",
   showMore: "Mostrar mais",
   showLess: "Mostrar menos",
@@ -139,6 +146,7 @@ export const ui: Record<Lang, Record<UiKey, string>> = {
     fEns: "Teaching",
     fLead: "Leadership",
     tools: "Tools",
+    process: "Process",
     close: "Close",
     showMore: "Show more",
     showLess: "Show less",
@@ -373,7 +381,8 @@ export const experience: Experience[] = [
 
 /* ───────────────────────── Projetos de desenvolvimento ───────────────────────── */
 
-export type DevCase = {
+/** Página de projeto (usada por desenvolvimento e por design). */
+export type CaseStudy = {
   lead: L;
   role: L;
   period: L;
@@ -381,10 +390,12 @@ export type DevCase = {
   context: L;
   myRole: L;
   stack: string[];
+  /** Dev: decisões técnicas. Design: etapas do processo. */
   decisions: { title: L; body: L }[];
   gallery: Img[];
   result: L;
 };
+export type DevCase = CaseStudy;
 
 export type DevProject = {
   slug: string;
@@ -719,6 +730,9 @@ export type DesignProject = {
   tone: "acc" | "ink" | "surface" | string;
   fg?: string;
   images: Img[];
+  /** Ferramentas, mostradas na página do projeto */
+  tags?: string[];
+  case?: CaseStudy;
 };
 
 export const designProjects: DesignProject[] = [
@@ -732,7 +746,54 @@ export const designProjects: DesignProject[] = [
     },
     year: "2023-2024",
     tone: "acc",
-    images: [{ label: { pt: "tela 01", en: "screen 01" }, src: "/images/design/katalisar.webp" }, { label: { pt: "tela 02", en: "screen 02" } }],
+    images: [{ label: { pt: "tela 01", en: "screen 01" }, src: "/images/design/katalisar.webp" }],
+    tags: ["Figma", "Double Diamond", "Design Thinking", "Scrum"],
+    case: {
+      lead: {
+        pt: "Concepção digital de um aplicativo para uma startup de inovação socioambiental, da pesquisa UX ao protótipo navegável.",
+        en: "Digital concept of an app for a social-environmental innovation startup, from UX research to a clickable prototype.",
+      },
+      role: { pt: "UX/UI Designer", en: "UX/UI Designer" },
+      period: { pt: "2023-2024", en: "2023-2024" },
+      status: { pt: "Entregue pela EJCM", en: "Delivered by EJCM" },
+      context: {
+        pt: "A Katalisar é uma startup de inovação socioambiental que contratou a EJCM para fazer a concepção digital do seu aplicativo. O desafio era entender o público, definir o problema e organizar um produto grande, com núcleos para diferentes tipos de usuário, em um sistema coerente.",
+        en: "Katalisar is a social-environmental innovation startup that hired EJCM to design its app. The challenge was to understand the audience, define the problem and organize a large product, with modules for different kinds of users, into a coherent system.",
+      },
+      myRole: {
+        pt: "Participei de toda a fase de pesquisa UX e fui um dos responsáveis por prototipar todas as telas do aplicativo no Figma, com interações.",
+        en: "I took part in the whole UX research phase and was one of the people responsible for prototyping every screen of the app in Figma, with interactions.",
+      },
+      stack: ["Figma", "Double Diamond", "Design Thinking", "Scrum"],
+      decisions: [
+        {
+          title: { pt: "Entender e imergir", en: "Understand and immerse" },
+          body: {
+            pt: "Pesquisa com o cliente e o público, organizada nas etapas do Double Diamond para mapear necessidades e definir o problema.",
+            en: "Research with the client and the audience, organized in Double Diamond stages to map needs and define the problem.",
+          },
+        },
+        {
+          title: { pt: "Estruturar por núcleos", en: "Structure by modules" },
+          body: {
+            pt: "Fluxos e arquitetura separados por núcleos de usuário (como cooperativa e empresa), planejados em sprints com Scrum.",
+            en: "Flows and architecture split by user modules (such as cooperative and company), planned in Scrum sprints.",
+          },
+        },
+        {
+          title: { pt: "Prototipar", en: "Prototype" },
+          body: {
+            pt: "Cerca de 1000 telas com interação no Figma, formando um protótipo navegável do aplicativo inteiro.",
+            en: "About 1,000 interactive screens in Figma, forming a clickable prototype of the entire app.",
+          },
+        },
+      ],
+      gallery: [],
+      result: {
+        pt: "Concepção digital completa entregue ao cliente: a pesquisa documentada e um protótipo navegável com cerca de 1000 telas, servindo de base para o desenvolvimento do aplicativo.",
+        en: "Complete digital concept delivered to the client: documented research and a clickable prototype with about 1,000 screens, serving as the basis for building the app.",
+      },
+    },
   },
   {
     slug: "paddock-news",

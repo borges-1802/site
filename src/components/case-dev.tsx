@@ -1,9 +1,20 @@
 "use client";
 
-import { devProjects } from "@/content/data";
+import { designProjects, devProjects, site, type CaseStudy, type L } from "@/content/data";
 import { LightboxProvider, useLightbox } from "./lightbox";
 import { usePrefs } from "./providers";
 import { Shot } from "./ui";
+
+/** Dados que a página de projeto precisa, venha ele de dev ou de design. */
+type CaseSource = {
+  kind: "dev" | "design";
+  title: L;
+  cover?: string;
+  tags: string[];
+  repos: string[];
+  demo?: string;
+  case: CaseStudy;
+};
 
 function Label({ children }: { children: React.ReactNode }) {
   return <div className="kicker">{children}</div>;
@@ -19,20 +30,28 @@ function Zoomable({ onOpen, enabled, children, label }: { onOpen: () => void; en
 }
 
 export function DevCaseView({ slug }: { slug: string }) {
+  const p = devProjects.find((d) => d.slug === slug)!;
   return (
     <LightboxProvider>
-      <CaseContent slug={slug} />
+      <CaseContent src={{ kind: "dev", title: p.title, cover: p.cover, tags: p.tags, repos: p.repos, demo: p.demo, case: p.case! }} />
     </LightboxProvider>
   );
 }
 
-function CaseContent({ slug }: { slug: string }) {
+export function DesignCaseView({ slug }: { slug: string }) {
+  const p = designProjects.find((d) => d.slug === slug)!;
+  return (
+    <LightboxProvider>
+      <CaseContent src={{ kind: "design", title: p.title, cover: p.images[0]?.src, tags: p.tags ?? [], repos: [], case: p.case! }} />
+    </LightboxProvider>
+  );
+}
+
+function CaseContent({ src: p }: { src: CaseSource }) {
   const { t, l } = usePrefs();
   const { open } = useLightbox();
-  const withCase = devProjects.filter((p) => p.case);
-  const i = withCase.findIndex((p) => p.slug === slug);
-  const p = withCase[i];
-  const c = p.case!;
+  const c = p.case;
+  const design = p.kind === "design";
 
   const images = c.gallery.filter((g) => g.src).map((g) => ({ src: g.src!, alt: l(g.label) }));
   const openAt = (src?: string) => {
@@ -43,13 +62,13 @@ function CaseContent({ slug }: { slug: string }) {
   const meta = [
     [t("role"), l(c.role)],
     [t("period"), l(c.period)],
-    [t("stack"), p.tags.slice(0, 3).join(" · ")],
+    [design ? t("tools") : t("stack"), p.tags.slice(0, 3).join(" · ")],
     [t("status"), l(c.status)],
   ];
 
   return (
     <div className="wrap page-enter grid gap-10 pb-16 pt-8 md:pb-24 md:pt-10 lg:grid-cols-[320px_1fr] lg:gap-12">
-      <aside className="flex flex-col gap-6 lg:sticky lg:top-22 lg:self-start">
+      <aside className="flex flex-col gap-6 lg:sticky lg:top-[88px] lg:self-start">
         <h1 className="font-display text-[36px] font-bold leading-[1.02] tracking-[-0.02em] md:text-[44px]">{l(p.title)}</h1>
         <p className="text-muted">{l(c.lead)}</p>
 
@@ -74,6 +93,11 @@ function CaseContent({ slug }: { slug: string }) {
               {t("demo")}
             </a>
           )}
+          {design && (
+            <a href={site.cv.design} target="_blank" rel="noopener" className="btn btn-primary w-full">
+              {t("fullPdf")}
+            </a>
+          )}
         </div>
       </aside>
 
@@ -82,8 +106,8 @@ function CaseContent({ slug }: { slug: string }) {
           src={p.cover}
           label={`${t("print")} · ${t("cover")}`}
           alt={l(p.title)}
-          className="aspect-16/10 overflow-hidden rounded-2xl shadow-[0_2px_14px_-6px_rgb(11_22_48/0.22)]"
-          position="top"
+          className="aspect-[16/10] overflow-hidden rounded-2xl shadow-[0_2px_14px_-6px_rgb(11_22_48/0.22)]"
+          position={design ? "center" : "top"}
           priority
         />
 
@@ -98,7 +122,7 @@ function CaseContent({ slug }: { slug: string }) {
             <p className="mt-3">{l(c.myRole)}</p>
           </section>
           <section id="stack" className="scroll-mt-24">
-            <Label>{t("stack")}</Label>
+            <Label>{design ? t("tools") : t("stack")}</Label>
             <div className="mt-3 flex flex-wrap gap-2">
               {c.stack.map((s) => (
                 <span key={s} className="rounded-lg bg-surface px-2.5 py-1 text-xs font-medium">
@@ -110,8 +134,8 @@ function CaseContent({ slug }: { slug: string }) {
         </div>
 
         <section id="decisoes" className="scroll-mt-24">
-          <Label>{t("decisions")}</Label>
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <Label>{design ? t("process") : t("decisions")}</Label>
+          <div className={`mt-4 grid gap-4 ${c.decisions.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
             {c.decisions.map((d, j) => (
               <div key={d.title.en} className="rounded-2xl bg-surface p-6">
                 <div className="font-display text-[32px] font-bold leading-none text-acc">{String(j + 1).padStart(2, "0")}</div>
@@ -122,6 +146,7 @@ function CaseContent({ slug }: { slug: string }) {
           </div>
         </section>
 
+        {c.gallery.length > 0 && (
         <section id="telas" className="scroll-mt-24">
           <Label>{t("gallery")}</Label>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
@@ -132,7 +157,10 @@ function CaseContent({ slug }: { slug: string }) {
                     src={g.src}
                     label={l(g.label)}
                     position="top"
-                    className="aspect-16/10 overflow-hidden rounded-xl shadow-[0_2px_14px_-6px_rgb(11_22_48/0.22)]"
+                    fit={g.fit}
+                    className={`aspect-[16/10] overflow-hidden rounded-xl shadow-[0_2px_14px_-6px_rgb(11_22_48/0.22)] ${
+                      g.fit === "contain" ? "bg-surface" : ""
+                    }`}
                   />
                 </Zoomable>
                 <figcaption className="mt-2 text-sm text-muted">{l(g.label)}</figcaption>
@@ -140,12 +168,12 @@ function CaseContent({ slug }: { slug: string }) {
             ))}
           </div>
         </section>
+        )}
 
         <section id="resultado" className="scroll-mt-24">
           <Label>{t("result")}</Label>
           <p className="mt-3 text-lg">{l(c.result)}</p>
         </section>
-
       </div>
     </div>
   );

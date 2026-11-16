@@ -12,6 +12,7 @@ export function Shot({
   labelClass = "bg-bg border-ink text-ink",
   position = "center",
   priority = false,
+  fit = "cover",
 }: {
   src?: string;
   label: string;
@@ -22,11 +23,12 @@ export function Shot({
   /** object-position da imagem, ex.: "50% 30%" */
   position?: string;
   priority?: boolean;
+  fit?: "cover" | "contain";
 }) {
   if (src) {
     return (
       <div className={`${className.includes("absolute") ? "" : "relative"} overflow-hidden ${className}`}>
-        <Image src={src} alt={alt ?? label} fill priority={priority} sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" style={{ objectPosition: position }} />
+        <Image src={src} alt={alt ?? label} fill priority={priority} sizes="(max-width: 768px) 100vw, 50vw" className={fit === "contain" ? "object-contain" : "object-cover"} style={{ objectPosition: position }} />
       </div>
     );
   }

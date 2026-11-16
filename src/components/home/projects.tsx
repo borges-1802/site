@@ -9,7 +9,7 @@ import { Reveal, SectionHead, Shot } from "../ui";
 const featured = devProjects.filter((p) => p.featured);
 
 export function DevProjects() {
-  const { t, href } = usePrefs();
+  const { t, l, href } = usePrefs();
 
   return (
     <section id="projetos" className="band section">
@@ -26,7 +26,7 @@ export function DevProjects() {
           <Link href={href("/projetos")} className="btn btn-secondary">
             {t("all")} ({devProjects.length})
           </Link>
-          <a href={site.cv.dev} target="_blank" rel="noopener" className="btn btn-secondary">
+          <a href={l(site.cv.dev)} target="_blank" rel="noopener" className="btn btn-secondary">
             {t("cv")}
           </a>
         </div>
@@ -43,7 +43,7 @@ function toneStyle(p: DesignProject) {
 }
 
 export function DesignProjects() {
-  const { t, l } = usePrefs();
+  const { t, l, href } = usePrefs();
 
   return (
     <section id="design" className="section">
@@ -54,11 +54,8 @@ export function DesignProjects() {
           {designProjects.map((p) => {
             const { bg, fg } = toneStyle(p);
             const cover = p.images[0];
-            return (
-              <article
-                key={p.slug}
-                className="flex flex-col overflow-hidden rounded-2xl bg-bg text-ink shadow-[0_2px_14px_-6px_rgb(11_22_48/0.22)]"
-              >
+            const body = (
+              <>
                 <div className="relative aspect-16/10" style={{ background: bg }}>
                   <Shot
                     src={cover?.src}
@@ -76,7 +73,20 @@ export function DesignProjects() {
                   </div>
                   <h3 className="font-display text-lg font-bold leading-snug">{l(p.title)}</h3>
                   <p className="text-[15px] leading-snug text-muted">{l(p.body)}</p>
+                  {p.case && <span className="mt-auto pt-2 text-sm font-semibold text-acc">{t("view")}</span>}
                 </div>
+              </>
+            );
+            const cls =
+              "flex flex-col overflow-hidden rounded-2xl bg-bg text-ink shadow-[0_2px_14px_-6px_rgb(11_22_48/0.22)]";
+            // Projetos com página própria viram link (e "sobem" no hover).
+            return p.case ? (
+              <Link key={p.slug} href={href(`/design/${p.slug}`)} className={`lift ${cls}`}>
+                {body}
+              </Link>
+            ) : (
+              <article key={p.slug} className={cls}>
+                {body}
               </article>
             );
           })}

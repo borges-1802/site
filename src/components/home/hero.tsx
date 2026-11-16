@@ -6,7 +6,7 @@ import { usePrefs } from "../providers";
 import { Shot } from "../ui";
 
 export function Hero() {
-  const { t, href } = usePrefs();
+  const { t, l, href } = usePrefs();
   return (
     <section className="wrap grid items-center gap-10 pb-16 pt-10 md:gap-16 md:pb-24 md:pt-16 lg:grid-cols-[1.25fr_1fr]">
       <div className="page-enter">
@@ -24,7 +24,7 @@ export function Hero() {
           <Link href={href("/#contato")} className="btn btn-primary px-5">
             {t("contactCta")}
           </Link>
-          <a href={site.cv.dev} target="_blank" rel="noopener" className="btn btn-secondary px-5">
+          <a href={l(site.cv.dev)} target="_blank" rel="noopener" className="btn btn-secondary px-5">
             {t("cv")}
           </a>
         </div>

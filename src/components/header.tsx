@@ -6,7 +6,7 @@ import { site, type Lang } from "@/content/data";
 import { usePrefs } from "./providers";
 
 export function Header() {
-  const { t, lang, setLang, theme, toggleTheme, href } = usePrefs();
+  const { t, l, lang, setLang, theme, toggleTheme, href } = usePrefs();
   const [cvOpen, setCvOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const cvRef = useRef<HTMLDivElement>(null);
@@ -59,7 +59,7 @@ export function Header() {
     { href: href("/#contato"), label: t("navContact") },
   ];
   const cvs = [
-    { href: site.cv.dev, label: t("cvDev") },
+    { href: l(site.cv.dev), label: t("cvDev") },
     { href: site.cv.design, label: t("cvDesign") },
   ];
 
